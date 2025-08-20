@@ -1,0 +1,68 @@
+using System;
+using HospitalManagementApplication.Models;
+using HospitalManagementApplication.ViewModels;
+using HospitalManagementApplication.Views;
+
+namespace HospitalManagementApplication.Views
+{
+    public class HomeView
+    {
+        private readonly PatientView _patientView;
+        private readonly DoctorsView _doctorsView;
+
+        public HomeView(PatientView patientView, DoctorsView doctorsView)
+        {
+            _patientView = patientView;
+            _doctorsView = doctorsView;
+        }
+
+        public void Run()
+        {
+            while (true)
+            {
+                Console.Clear(); // Optional: clears the screen for fresh menu
+                Console.WriteLine("========================================");
+                Console.WriteLine("     🏥 Hospital Management System");
+                Console.WriteLine("========================================");
+                Console.WriteLine("1. Manage Patients");
+                Console.WriteLine("2. List the Doctors");
+                Console.WriteLine("3. Exit");
+                Console.WriteLine("----------------------------------------");
+                Console.Write("Enter your choice (1-3): ");
+
+                var choice = Console.ReadLine();
+                Console.WriteLine(); // spacing
+
+                switch (choice)
+                {
+                    case "1":
+                        _patientView.ShowMenu();
+                        break;
+
+                    case "2":
+                        if (_doctorsView != null)
+                        {
+                            _doctorsView.Show();
+                        }
+                        else
+                        {
+                            Console.WriteLine("⚠️ Doctors section is not implemented yet.");
+                            Console.WriteLine("Press Enter to continue...");
+                            Console.ReadLine();
+                        }
+                        break;
+
+                    case "3":
+                        Console.WriteLine("Thank you for using the Hospital Management System.");
+                        return;
+
+                    default:
+                        Console.WriteLine("❌ Invalid choice. Please enter a number between 1 and 3.");
+                        Console.WriteLine("Press Enter to try again...");
+                        Console.ReadLine();
+                        break;
+                }
+            }
+        }
+    }
+}

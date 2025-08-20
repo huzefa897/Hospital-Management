@@ -5,8 +5,12 @@ namespace HospitalManagementApplication.Interfaces
 {
     public interface IPatientRepository
     {
-        Patient GetPatientById(int id);
         Patient AddPatient(Patient patient);
-        IEnumerable<Patient> GetAll();
+        // public Patient? GetById(int id);
+         public Patient GetPatientById(int id);
+        public IEnumerable<Patient> GetAll() ;
+        IEnumerable<Patient> SearchByName(string term);
+        bool Update(Patient patient);
+        bool Delete(int id);
     }
 }

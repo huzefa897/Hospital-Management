@@ -2,6 +2,7 @@
 /Users/huzefa/CascadeProjects/HospitalManagementApplication/obj/Debug/net9.0/HospitalManagementApplication.AssemblyInfoInputs.cache
 /Users/huzefa/CascadeProjects/HospitalManagementApplication/obj/Debug/net9.0/HospitalManagementApplication.AssemblyInfo.cs
 /Users/huzefa/CascadeProjects/HospitalManagementApplication/obj/Debug/net9.0/HospitalManagementApplication.csproj.CoreCompileInputs.cache
+/Users/huzefa/CascadeProjects/HospitalManagementApplication/obj/Debug/net9.0/HospitalManagementApplication.sourcelink.json
 /Users/huzefa/CascadeProjects/HospitalManagementApplication/bin/Debug/net9.0/HospitalManagementApplication
 /Users/huzefa/CascadeProjects/HospitalManagementApplication/bin/Debug/net9.0/HospitalManagementApplication.deps.json
 /Users/huzefa/CascadeProjects/HospitalManagementApplication/bin/Debug/net9.0/HospitalManagementApplication.runtimeconfig.json

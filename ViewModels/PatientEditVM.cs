@@ -1,11 +1,11 @@
-namespace HospitalManagementApplication.Models
+namespace HospitalManagementApplication.ViewModels
 {
-    public class Patient
+    public class PatientEditVM
     {
         public int Id { get; set; }
         public string Name { get; set; } = "";
         public int Age { get; set; }
         public string Disease { get; set; } = "";
-        public int? primaryDoctorId { get; set; }
+        public int? PrimaryDoctorId { get; set; }
     }
 }

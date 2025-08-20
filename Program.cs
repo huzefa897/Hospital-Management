@@ -1,6 +1,6 @@
 ﻿using HospitalManagementApplication.Interfaces;
 using HospitalManagementApplication.Repositories;
-using HospitalManagementApplication.ViewModels;
+using HospitalManagementApplication.Controllers;
 using HospitalManagementApplication.Views;
 
 namespace HospitalManagementApplication
@@ -10,9 +10,11 @@ namespace HospitalManagementApplication
         static void Main(string[] args)
         {
             IPatientRepository repo = new PatientRepository();
-            var viewModel = new PatientViewModel(repo);
-            var view = new PatientView(viewModel);
-            view.ShowMenu();
+            var controller = new PatientController(repo); 
+            var patientView = new PatientView(controller); 
+
+            var homeView = new HomeView(patientView, null!); // null-forgiving operator
+            homeView.Run();
         }
     }
 }
