@@ -1,0 +1,14 @@
+/Users/huzefa/CascadeProjects/HospitalManagementApplication/obj/Debug/net9.0/HospitalManagementApplication.GeneratedMSBuildEditorConfig.editorconfig
+/Users/huzefa/CascadeProjects/HospitalManagementApplication/obj/Debug/net9.0/HospitalManagementApplication.AssemblyInfoInputs.cache
+/Users/huzefa/CascadeProjects/HospitalManagementApplication/obj/Debug/net9.0/HospitalManagementApplication.AssemblyInfo.cs
+/Users/huzefa/CascadeProjects/HospitalManagementApplication/obj/Debug/net9.0/HospitalManagementApplication.csproj.CoreCompileInputs.cache
+/Users/huzefa/CascadeProjects/HospitalManagementApplication/bin/Debug/net9.0/HospitalManagementApplication
+/Users/huzefa/CascadeProjects/HospitalManagementApplication/bin/Debug/net9.0/HospitalManagementApplication.deps.json
+/Users/huzefa/CascadeProjects/HospitalManagementApplication/bin/Debug/net9.0/HospitalManagementApplication.runtimeconfig.json
+/Users/huzefa/CascadeProjects/HospitalManagementApplication/bin/Debug/net9.0/HospitalManagementApplication.dll
+/Users/huzefa/CascadeProjects/HospitalManagementApplication/bin/Debug/net9.0/HospitalManagementApplication.pdb
+/Users/huzefa/CascadeProjects/HospitalManagementApplication/obj/Debug/net9.0/HospitalManagementApplication.dll
+/Users/huzefa/CascadeProjects/HospitalManagementApplication/obj/Debug/net9.0/refint/HospitalManagementApplication.dll
+/Users/huzefa/CascadeProjects/HospitalManagementApplication/obj/Debug/net9.0/HospitalManagementApplication.pdb
+/Users/huzefa/CascadeProjects/HospitalManagementApplication/obj/Debug/net9.0/HospitalManagementApplication.genruntimeconfig.cache
+/Users/huzefa/CascadeProjects/HospitalManagementApplication/obj/Debug/net9.0/ref/HospitalManagementApplication.dll
