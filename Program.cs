@@ -13,8 +13,8 @@ namespace HospitalManagementApplication
             var controller = new PatientController(repo); 
             var patientView = new PatientView(controller); 
 
-            var homeView = new HomeView(patientView, null!); // null-forgiving operator
-            homeView.Run();
+            var loginView = new LoginView(patientView, null);
+            loginView.Run();
         }
     }
 }

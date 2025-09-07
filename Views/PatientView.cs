@@ -2,7 +2,7 @@ using System;
 using HospitalManagementApplication.Models;
 using HospitalManagementApplication.Controllers;
 using HospitalManagementApplication.ViewModels;
-
+using HospitalManagementApplication.Headers;
 
 
 namespace HospitalManagementApplication.Views
@@ -20,6 +20,7 @@ namespace HospitalManagementApplication.Views
         {
             while (true)
             {
+               HeaderHelper.DrawHeader("Manage Patients");
                 Console.WriteLine("\n--- Manage Patients ---");
                 Console.WriteLine("1. Add Patient");
                 Console.WriteLine("2. View All Patients");
@@ -34,18 +35,23 @@ namespace HospitalManagementApplication.Views
                 {
                     case "1":
                         AddPatient();
+                         HospitalManagementApplication.Util.Util.Pause();
                         break;
                     case "2":
                         ViewAllPatients();
-                        break;
+                       HospitalManagementApplication.Util.Util.Pause();
+                       break;
                     case "3":
                         SearchByName();
+                         HospitalManagementApplication.Util.Util.Pause();
                         break;
                     case "4":
                         EditPatient();
+                         HospitalManagementApplication.Util.Util.Pause();
                         break;
                     case "5":
                         DeletePatient();
+                         HospitalManagementApplication.Util.Util.Pause();
                         break;
                     case "6":
                         return;
@@ -83,6 +89,7 @@ namespace HospitalManagementApplication.Views
             var vm = new PatientCreateVM { Name = name, Age = age, Disease = disease };
             var result = _controller.Create(vm);
             Console.WriteLine($"Patient Added: ID = {result.Id}, Name = {result.Name}");
+
         }
         private void SearchByName(){
             Console.Write("Enter Patient Name or Surname: ");
@@ -93,42 +100,59 @@ namespace HospitalManagementApplication.Views
             
         }
 
-        private void EditPatient(){
-            Console.Write("Enter the Patient Id");
-            int id = int.Parse(Console.ReadLine()!);
-            var vm = new PatientEditVM{
-                Id = id
-                            };
-            vm = _controller.GetForEdit(vm.Id); 
-            if(vm.Id==null){
-                Console.Write("Patient Not Found!!");
-            }
-            else{
-                Console.Write("Enter the Patient Name");
-                vm.Name = Console.ReadLine()!;
-                Console.Write("Enter the Patient Age");
-                vm.Age = int.Parse(Console.ReadLine()!);
-                Console.Write("Enter the Patient Disease");
-                vm.Disease = Console.ReadLine()!;
-                Console.Write("Enter the Patient Primary Doctor Id");
-                vm.PrimaryDoctorId = int.Parse(Console.ReadLine()!);
-                _controller.Update(vm);
-            }
+        private void EditPatient()
+{
+    Console.Write("Enter Patient ID: ");
+    if (!int.TryParse(Console.ReadLine(), out int id))
+    {
+        Console.WriteLine("Invalid ID.");
+        return;
+    }
 
-        }
-        private void DeletePatient(){
-            Console.Write("Enter Patient to be Deleted");
-            int id = int.Parse(Console.ReadLine()!);
-            
-            string confirm = Console.ReadLine()!;
-            if(confirm == "y"){
-                _controller.Delete(id);
-            }
-            else{
-                Console.WriteLine("Cancelled!!");
-            }
+    var vm = _controller.GetForEdit(id);
+    if (vm == null)
+    {
+        Console.WriteLine("Patient not found!");
+        return;
+    }
 
-        }
+    Console.Write("Enter Patient Name: ");
+    vm.Name = Console.ReadLine()!;
+
+    Console.Write("Enter Patient Age: ");
+    vm.Age = int.Parse(Console.ReadLine()!);
+
+    Console.Write("Enter Patient Disease: ");
+    vm.Disease = Console.ReadLine()!;
+
+    Console.Write("Enter Primary Doctor ID: ");
+    vm.PrimaryDoctorId = int.Parse(Console.ReadLine()!);
+
+    _controller.Update(vm);
+    Console.WriteLine("Patient updated successfully!");
+}
+       private void DeletePatient()
+{
+    Console.Write("Enter Patient ID to delete: ");
+    if (!int.TryParse(Console.ReadLine(), out int id))
+    {
+        Console.WriteLine("Invalid ID.");
+        return;
+    }
+
+    Console.Write("Are you sure? (y/n): ");
+    string confirm = Console.ReadLine()!;
+    if (confirm.Equals("y", StringComparison.OrdinalIgnoreCase))
+    {
+        _controller.Delete(id);
+        Console.WriteLine("Patient deleted.");
+    }
+    else
+    {
+        Console.WriteLine("Cancelled!");
+    }
+}
+
         private void ViewAllPatients()
         {
             var patients = _controller.GetAllPatients();

@@ -2,6 +2,7 @@ using System;
 using HospitalManagementApplication.Models;
 using HospitalManagementApplication.ViewModels;
 using HospitalManagementApplication.Views;
+using HospitalManagementApplication.Headers;
 
 namespace HospitalManagementApplication.Views
 {
@@ -9,21 +10,20 @@ namespace HospitalManagementApplication.Views
     {
         private readonly PatientView _patientView;
         private readonly DoctorsView _doctorsView;
-
-        public HomeView(PatientView patientView, DoctorsView doctorsView)
+        private readonly string _user;
+        public HomeView(PatientView patientView, DoctorsView doctorsView, string user)
         {
             _patientView = patientView;
             _doctorsView = doctorsView;
+            _user = user;
         }
 
         public void Run()
         {
             while (true)
             {
-                Console.Clear(); // Optional: clears the screen for fresh menu
-                Console.WriteLine("========================================");
-                Console.WriteLine("     🏥 Hospital Management System");
-                Console.WriteLine("========================================");
+               HeaderHelper.DrawHeader("Home");
+               Console. WriteLine("Hello " + _user);
                 Console.WriteLine("1. Manage Patients");
                 Console.WriteLine("2. List the Doctors");
                 Console.WriteLine("3. Exit");
@@ -52,9 +52,11 @@ namespace HospitalManagementApplication.Views
                         }
                         break;
 
-                    case "3":
+
+                       case "3":
                         Console.WriteLine("Thank you for using the Hospital Management System.");
-                        return;
+                        Environment.Exit(0); // cleanly exit the application
+                        break;
 
                     default:
                         Console.WriteLine("❌ Invalid choice. Please enter a number between 1 and 3.");

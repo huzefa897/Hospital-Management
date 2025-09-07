@@ -44,6 +44,9 @@ namespace HospitalManagementApplication.Controllers
 
         public PatientEditVM? GetForEdit(int id)
         {
+            if(id == 0){
+                return null;
+            }
             var p = _repo.GetPatientById(id);
             if (p == null) return null;
 
@@ -56,6 +59,24 @@ namespace HospitalManagementApplication.Controllers
                 PrimaryDoctorId = p.primaryDoctorId
             };
         }
+
+        //  public PatientEditVM? GetForEdit(string name)
+        // {
+        //     if(name == ""){
+        //         return null;
+        //     }
+        //     var p = _repo.GetPatientByName(name);
+        //     if (p == null) return null;
+
+        //     return new PatientEditVM
+        //     {
+        //         Id = p.Id,
+        //         Name = p.Name,
+        //         Age = p.Age,
+        //         Disease = p.Disease,
+        //         PrimaryDoctorId = p.primaryDoctorId
+        //     };
+        // }
 
         public IEnumerable<PatientListItemVm> GetAllPatients()
         {
