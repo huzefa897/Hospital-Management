@@ -21,7 +21,10 @@ namespace HospitalManagementApplication.Controllers
             {
                 Name = vm.Name,
                 Age = vm.Age,
-                Disease = vm.Disease,
+                // Disease = vm.Disease,
+                Address = vm.Address,
+                phone = vm.phone,
+                email = vm.email,
                 primaryDoctorId = vm.PrimaryDoctorId
             };
 
@@ -32,7 +35,10 @@ namespace HospitalManagementApplication.Controllers
                 Id = saved.Id,
                 Name = saved.Name,
                 Age = saved.Age,
-                Disease = saved.Disease,
+                Address = saved.Address,
+                phone = saved.phone,
+                email = saved.email,
+                // primaryDoctorId = saved.primaryDoctorId,
                 DoctorName = "N/A" // or fetch from doctor service later
             };
         }
@@ -55,8 +61,10 @@ namespace HospitalManagementApplication.Controllers
                 Id = p.Id,
                 Name = p.Name,
                 Age = p.Age,
-                Disease = p.Disease,
-                PrimaryDoctorId = p.primaryDoctorId
+                Address = p.Address,
+                phone = p.phone,
+                email = p.email,
+                // primaryDoctorId = p.primaryDoctorId
             };
         }
 
@@ -88,7 +96,10 @@ namespace HospitalManagementApplication.Controllers
                     Id = p.Id,
                     Name = p.Name,
                     Age = p.Age,
-                    Disease = p.Disease,
+                    Address = p.Address,
+                    phone = p.phone,
+                    email = p.email,
+                    // primaryDoctorId = p.primaryDoctorId,
                     DoctorName = "N/A" // placeholder or fetch if needed
                 });
             }
@@ -105,7 +116,10 @@ namespace HospitalManagementApplication.Controllers
                     Id = p.Id,
                     Name = p.Name,
                     Age = p.Age,
-                    Disease = p.Disease,
+                    Address = p.Address,
+                    phone = p.phone,
+                    email = p.email,
+                    // primaryDoctorId = p.primaryDoctorId,
                     DoctorName = "N/A"
                 });
             }
@@ -119,7 +133,9 @@ namespace HospitalManagementApplication.Controllers
 
             existing.Name = vm.Name;
             existing.Age = vm.Age;
-            existing.Disease = vm.Disease;
+            existing.Address = vm.Address;
+            existing.phone = vm.phone;
+            existing.email = vm.email;
             existing.primaryDoctorId = vm.PrimaryDoctorId;
 
             return _repo.Update(existing);

@@ -5,7 +5,9 @@ namespace HospitalManagementApplication.ViewModels
         public int Id { get; set; }
         public string Name { get; set; } = "";
         public int Age { get; set; }
-        public string Disease { get; set; } = "";
+        public string Address { get; set; } = "";
+        public string phone { get; set; } = "";
+        public string email { get; set; } = "";
         public string? DoctorName { get; set; }
 
         // Optional constructor to make conversion easier
@@ -16,7 +18,9 @@ namespace HospitalManagementApplication.ViewModels
             Id = p.Id;
             Name = p.Name;
             Age = p.Age;
-            Disease = p.Disease;
+            Address = p.Address;
+            phone = p.phone;
+            email = p.email;
             DoctorName = doctorName;
         }
     }

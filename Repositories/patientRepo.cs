@@ -30,7 +30,9 @@ namespace HospitalManagementApplication.Repositories
             else{
                 alreadyExists.Name = updated.Name;
                 alreadyExists.Age = updated.Age;
-                alreadyExists.Disease = updated.Disease;
+                alreadyExists.Address = updated.Address;
+                alreadyExists.phone = updated.phone;
+                alreadyExists.email = updated.email;
                 return true;
             }      
             

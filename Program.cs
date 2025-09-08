@@ -14,7 +14,17 @@ namespace HospitalManagementApplication
             var patientView = new PatientView(controller); 
 
             var loginView = new LoginView(patientView, null);
-            loginView.Run();
+
+            while (true)
+    {
+        bool user = loginView.Run();  
+        if (!user) break;         
+
+        var homeView = new HomeView(patientView, null, "user");
+        bool loggedOut = homeView.Run();
+
+        if (!loggedOut) break;
+    }
         }
     }
 }

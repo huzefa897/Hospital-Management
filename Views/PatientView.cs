@@ -83,10 +83,16 @@ namespace HospitalManagementApplication.Views
                 Console.Write("Invalid input. Enter numeric age: ");
             }
 
-            Console.Write("Enter Disease: ");
-            string disease = Console.ReadLine()!;
+            Console.Write("Address: ");
+            string address = Console.ReadLine()!;
 
-            var vm = new PatientCreateVM { Name = name, Age = age, Disease = disease };
+            Console.Write("Phone: ");
+            string phone = Console.ReadLine()!;
+
+            Console.Write("Email: ");
+            string email = Console.ReadLine()!;
+
+            var vm = new PatientCreateVM { Name = name, Age = age, phone = phone, Address=address,email=email };
             var result = _controller.Create(vm);
             Console.WriteLine($"Patient Added: ID = {result.Id}, Name = {result.Name}");
 
@@ -122,8 +128,14 @@ namespace HospitalManagementApplication.Views
     Console.Write("Enter Patient Age: ");
     vm.Age = int.Parse(Console.ReadLine()!);
 
-    Console.Write("Enter Patient Disease: ");
-    vm.Disease = Console.ReadLine()!;
+    Console.Write("Enter Patient Address: ");
+    vm.Address = Console.ReadLine()!;
+
+    Console.Write("Enter Patient Phone: ");
+    vm.phone = Console.ReadLine()!;
+
+    Console.Write("Enter Patient Email: ");
+    vm.email = Console.ReadLine()!;
 
     Console.Write("Enter Primary Doctor ID: ");
     vm.PrimaryDoctorId = int.Parse(Console.ReadLine()!);
@@ -156,12 +168,12 @@ namespace HospitalManagementApplication.Views
         private void ViewAllPatients()
         {
             var patients = _controller.GetAllPatients();
-             Console.WriteLine("{0,-6} {1,-20} {2,-5} {3}", "ID", "Name", "Age", "Disease");
+             Console.WriteLine("{0,-6} {1,-20} {2,-5} {3,-20} {4,-6} {5,-6}", "ID", "Name", "Age", "Address","Phone","Email");
             Console.WriteLine(new string('-', 60));
             foreach (var p in patients)
             {
                
-                Console.WriteLine("{0,-6} {1,-20} {2,-5} {3}", p.Id, p.Name, p.Age, p.Disease);
+                Console.WriteLine("{0,-6} {1,-20} {2,-5} {3,-20} {4,-6} {5,-6}", p.Id, p.Name, p.Age, p.Address,p.phone,p.email);
             }
         }
     }
