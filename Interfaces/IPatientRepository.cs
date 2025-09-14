@@ -5,12 +5,12 @@ namespace HospitalManagementApplication.Interfaces
 {
     public interface IPatientRepository
     {
-        Patient AddPatient(Patient patient);
+        Task<Patient> AddPatient(Patient patient);
         // public Patient? GetById(int id);
-         public Patient GetPatientById(int id);
-        public IEnumerable<Patient> GetAll() ;
-        IEnumerable<Patient> SearchByName(string term);
-        bool Update(Patient patient);
-        bool Delete(int id);
+         public Task<Patient> GetPatientById(int id);
+        public Task<IEnumerable<Patient>> GetAll() ;
+        public Task<IEnumerable<Patient>> SearchByName(string term);
+        public Task<bool> Update(Patient patient);
+        public Task<bool> Delete(int id);
     }
 }

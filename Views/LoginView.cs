@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
-using HospitalManagementApplication.Views;
 using HospitalManagementApplication.Headers;
-
+using HospitalManagementApplication.Interfaces;
 
 namespace HospitalManagementApplication.Views
 {
@@ -10,16 +8,14 @@ namespace HospitalManagementApplication.Views
     {
         private readonly PatientView _patientView;
         private readonly DoctorsView? _doctorsView;
+        private readonly IUserRepository _users;   // <- real repo (DB-backed)
+        private string? _currentUser;
 
-        private static readonly Dictionary<string, string> users =
-            new(StringComparer.OrdinalIgnoreCase);
-
-        private static string? currentUser = null;
-
-        public LoginView(PatientView patientView, DoctorsView? doctorsView = null)
+        public LoginView(PatientView patientView, IUserRepository users, DoctorsView? doctorsView = null)
         {
             _patientView = patientView;
             _doctorsView = doctorsView;
+            _users = users;
         }
 
         // Returns true to keep app running, false to exit program
@@ -27,31 +23,23 @@ namespace HospitalManagementApplication.Views
         {
             while (true)
             {
-                if (currentUser == null)
+                if (_currentUser == null)
                 {
                     bool stayInApp = ShowLoginPage();
                     if (!stayInApp) return false; // user chose Exit
                 }
                 else
                 {
-                    // Go to home, and handle their result:
-                    // assume HomeView.Run() => true = logged out, false = quit
-                    var homeView = new HomeView(_patientView, _doctorsView, currentUser!);
+                    var homeView = new HomeView(_patientView, _doctorsView, _currentUser!);
                     bool loggedOut = homeView.Run();
-                    if (loggedOut)
-                    {
-                        currentUser = null; // back to login loop
-                    }
-                    else
-                    {
-                        return false; // quit app
-                    }
+                    if (loggedOut) _currentUser = null;   // back to login menu
+                    else return false;                    // quit app
                 }
             }
         }
 
         // Shows login menu. Returns true to continue app, false to quit.
-        private static bool ShowLoginPage()
+        private bool ShowLoginPage()
         {
             Console.Clear();
             HeaderHelper.DrawHeader("User Options");
@@ -62,26 +50,26 @@ namespace HospitalManagementApplication.Views
 
             var key = Console.ReadKey(true).Key;
 
-            if (key == ConsoleKey.D1)
-            {
-                Register();
-                return true; // return to login menu
-            }
-            else if (key == ConsoleKey.D2)
-            {
-                bool ok = Login();
-                return ok; // if login succeeded, caller will go to Home
-            }
-            else if (key == ConsoleKey.Q)
-            {
-                return false; // signal Program to exit
-            }
+            switch (key)
+    {
+        case ConsoleKey.D1:
+        case ConsoleKey.NumPad1:
+            Register();
+            return true;                  
 
-            // Any other key: just continue showing the login menu
-            return true;
+        case ConsoleKey.D2:
+        case ConsoleKey.NumPad2:
+            return Login();               
+
+        case ConsoleKey.Q:
+            return false;                 
+
+        default:
+            return true;                  
+    }
         }
 
-        private static void Register()
+        private void Register()
         {
             Console.Clear();
             HeaderHelper.DrawHeader("User Registration");
@@ -90,23 +78,22 @@ namespace HospitalManagementApplication.Views
             Console.Write("Enter Your Password: ");
             string password = ReadPassword();
 
-            if (users.ContainsKey(username))
+            try
             {
-                Console.WriteLine("User Already Exists");
-                Pause(() => { }); // just return to login menu
+                // sync wrapper since your views are sync
+                _users.RegisterAsync(username, password).GetAwaiter().GetResult();
+                Console.WriteLine("User registered successfully! ✅");
             }
-            else
+            catch (Exception ex)
             {
-                users[username] = password;
-                Console.WriteLine("User registered successfully!");
-                // If you want to immediately try login after register:
-                // Pause(() => { Login(); });
-                Pause(() => { }); // or just pause and return to menu
+                Console.WriteLine($"Registration failed: {ex.Message}");
             }
+            Pause();
         }
 
-        // Returns true if login succeeded (so caller can go to Home)
-        private static bool Login()
+        // Returns true if app should continue (login ok or just return to menu),
+        // false only if you want to exit entire app from here.
+        private bool Login()
         {
             Console.Clear();
             HeaderHelper.DrawHeader("User Login");
@@ -115,21 +102,18 @@ namespace HospitalManagementApplication.Views
             Console.Write("Enter Your Password: ");
             string password = ReadPassword();
 
-            if (users.TryGetValue(username, out string? storedPassword) &&
-                storedPassword == password)
+            var ok = _users.VerifyAsync(username, password).GetAwaiter().GetResult();
+            if (ok)
             {
-                currentUser = username;
-                Console.WriteLine("Login successful!");
-                Pause(() => { });
-                return true;
+                _currentUser = username;
+                Console.WriteLine("Login successful! ✅");
+                Pause();
+                return true; // go to Home
             }
-            else
-            {
-                Console.WriteLine("Invalid username or password");
-                // IMPORTANT: Login returns bool, but Pause wants Action
-                Pause(() => { }); // don’t pass Login directly
-                return false;
-            }
+
+            Console.WriteLine("Invalid username or password ❌");
+            Pause();
+            return true; // stay in login menu
         }
 
         private static string ReadPassword()
@@ -153,11 +137,10 @@ namespace HospitalManagementApplication.Views
             return pass;
         }
 
-        private static void Pause(Action nextAction)
+        private static void Pause()
         {
             Console.Write("\nPress any key to continue...");
             Console.ReadKey(true);
-            nextAction();
         }
     }
 }
