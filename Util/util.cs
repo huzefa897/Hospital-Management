@@ -15,4 +15,13 @@ namespace HospitalManagementApplication.Util{
         }
     }
 
+    public class DataPath{
+
+        public static string GetPath(string Filename){
+             var dataDir = Path.Combine(AppContext.BaseDirectory, "Data");
+             Directory.CreateDirectory(dataDir);
+             return Path.Combine(dataDir, Filename);
+        }
+    }
+
 }

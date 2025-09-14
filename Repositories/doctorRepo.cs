@@ -1,73 +1,38 @@
-// using System.Collections.Generic;
-// using System.Linq;
-// using HospitalManagementApplication.Models;
-// using HospitalManagementApplication.Interfaces;
+// Repositories/DoctorRepository.cs
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using HospitalManagementApplication.Data;
+using HospitalManagementApplication.Interfaces;
+using HospitalManagementApplication.Models;
 
-// namespace HospitalManagementApplication.Repositories
-// {
-//     public class DoctorRepository : IDoctorRepository
-//     {
-//         private readonly List<Doctor> _doctors = new();
-//         private int _nextId = 1;
+namespace HospitalManagementApplication.Repositories
+{
+    public class DoctorRepository : IDoctorRepository
+    {
+        private readonly AppDbContext _db;
+        public DoctorRepository(AppDbContext db) => _db = db;
 
-        
-// // <----------------Repo Functions--------------------------->
-// //  Patient AddPatient(Patient patient);
-// //         Patient? GetById(int id); completed
-// //         IEnumerable<Patient> GetAll(); completed
-// //         IEnumerable<Patient> SearchByName(string term); 
-// //         bool Update(Patient patient); completed
-// //         bool Delete(int id);
-// // <----------------Repo Functions--------------------------->
+        public Doctor GetDoctorById(int id)
+        {
+            var doc = _db.Doctors.AsNoTracking().FirstOrDefault(d => d.Id == id);
+            if (doc is null) throw new KeyNotFoundException($"Doctor {id} not found.");
+            return doc;
+        }
 
+        public Doctor AddDoctor(Doctor doctor)
+        {
+            _db.Doctors.Add(doctor);
+            _db.SaveChanges();           // persist
+            return doctor;               // Id set by DB
+        }
 
-
-//         public bool Update(Doctor updated){
-//             // var alreadyExists = GetDoctorById(updated.Id);
-//             // if(alreadyExists == null){
-//             //     return false;
-//             // }      
-//             // else{
-//             //     alreadyExists.Name = updated.Name;
-//             //     alreadyExists.Age = updated.Age;
-//             //     alreadyExists.Disease = updated.Disease;
-//             //     return true;
-//             // }      
-//             return;
-            
-//         }   
-//         public bool Delete(int id){
-//             // var alreadyExists = GetDoctorById(id);
-//             // if(alreadyExists == null){
-//             //     return false;
-//             // }      
-//             // else{
-//             //     _doctors.Remove(alreadyExists);
-//             //     return true;
-//             // }      
-//             return;
-//         }   
-
-//         public Doctor AddDoctor(Doctor d) //Add Pt
-//         {
-//             // d.DocId = _nextId++;
-//             // _doctors.Add(d);
-//             // return d;
-//             return;
-//         }
-
-//         public Doctor GetDoctorById(int id) //Get Pt by ID
-//         {
-//             // return _doctors.FirstOrDefault(p => p.Id == id)!;
-//             return;
-//         }
-
-//         public IEnumerable<Doctor> GetAll() //Get all pts
-//         {
-//             // return _doctors;
-//             return;
-//         }
-//     }
-// }
-
-                
+        public IEnumerable<Doctor> GetAll()
+        {
+            return _db.Doctors
+                      .AsNoTracking()
+                      .OrderBy(d => d.Name)
+                      .ToList();
+        }
+    }
+}

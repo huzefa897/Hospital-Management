@@ -1,80 +1,72 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using HospitalManagementApplication.Models;
 using HospitalManagementApplication.Interfaces;
+using HospitalManagementApplication.Data;
 
 namespace HospitalManagementApplication.Repositories
 {
     public class PatientRepository : IPatientRepository
     {
-        private readonly List<Patient> _patients = new();
-        private int _nextId = 1;
+        private readonly AppDbContext _db;
+        public PatientRepository(AppDbContext db) => _db = db;
 
-// <----------------Repo Functions--------------------------->
-//  Patient AddPatient(Patient patient);
-//         Patient? GetById(int id); completed
-//         IEnumerable<Patient> GetAll(); completed
-//         IEnumerable<Patient> SearchByName(string term); 
-//         bool Update(Patient patient); completed
-//         bool Delete(int id);
-// <----------------Repo Functions--------------------------->
-
-
-
-
-        public bool Update(Patient updated){
-            var alreadyExists = GetPatientById(updated.Id);
-            if(alreadyExists == null){
-                return false;
-            }      
-            else{
-                alreadyExists.Name = updated.Name;
-                alreadyExists.Age = updated.Age;
-                alreadyExists.Address = updated.Address;
-                alreadyExists.phone = updated.phone;
-                alreadyExists.email = updated.email;
-                return true;
-            }      
-            
-        }   
-        public bool Delete(int id){
-            var alreadyExists = GetPatientById(id);
-            if(alreadyExists == null){
-                return false;
-            }      
-            else{
-                _patients.Remove(alreadyExists);
-                return true;
-            }      
-            
-        }   
-
-        public Patient AddPatient(Patient p) //Add Pt
+        public async Task<Patient> AddPatient(Patient patient)
         {
-            p.Id = _nextId++;
-            _patients.Add(p);
+            await _db.Patients.AddAsync(patient);
+            await _db.SaveChangesAsync();
+            return patient; // Id populated by DB
+        }
+
+        public async Task<Patient> GetPatientById(int id)
+        {
+            var p = await _db.Patients.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            if (p is null) throw new KeyNotFoundException($"Patient {id} not found.");
             return p;
         }
 
-        public Patient GetPatientById(int id) //Get Pt by ID
+        public async Task<IEnumerable<Patient>> GetAll()
         {
-            return _patients.FirstOrDefault(p => p.Id == id)!;
+            return await _db.Patients
+                .AsNoTracking()
+                .OrderBy(p => p.Name)
+                .ToListAsync();
         }
 
-        public IEnumerable<Patient> SearchByName(string term)
+        public async Task<IEnumerable<Patient>> SearchByName(string term)
         {
-            List<Patient> returnList =new();
-            foreach(var p in _patients){
-                if(p.Name.Contains(term, StringComparison.OrdinalIgnoreCase)){
-                    returnList.Add(p);
-                }
-            } 
-            return returnList;
+            term ??= string.Empty;
+            return await _db.Patients
+                .AsNoTracking()
+                .Where(p => EF.Functions.Like(p.Name, $"%{term}%"))
+                .OrderBy(p => p.Name)
+                .ToListAsync();
         }
 
-        public IEnumerable<Patient> GetAll() //Get all pts
+        public async Task<bool> Update(Patient updated)
         {
-            return _patients;
+            var existing = await _db.Patients.FirstOrDefaultAsync(x => x.Id == updated.Id);
+            if (existing is null) return false;
+
+            // Map allowed fields (use PascalCase property names)
+            existing.Name    = updated.Name;
+            existing.Age     = updated.Age;
+            existing.Address = updated.Address;
+            existing.phone   = updated.phone;
+            existing.email   = updated.email;
+
+            return await _db.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> Delete(int id)
+        {
+            var existing = await _db.Patients.FirstOrDefaultAsync(x => x.Id == id);
+            if (existing is null) return false;
+
+            _db.Patients.Remove(existing);
+            return await _db.SaveChangesAsync() > 0;
         }
     }
 }
