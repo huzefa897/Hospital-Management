@@ -1,44 +1,58 @@
 using System;
 using HospitalManagementApplication.Headers;
 using HospitalManagementApplication.Interfaces;
+using HospitalManagementApplication.Models;
 
 namespace HospitalManagementApplication.Views
 {
     public class LoginView
     {
         private readonly PatientView _patientView;
-        private readonly DoctorsView? _doctorsView;
-        private readonly IUserRepository _users;   // <- real repo (DB-backed)
-        private string? _currentUser;
+        private readonly DoctorsView _doctorsView;
+        private readonly AppointmentView _apptView;
+        private readonly IUserRepository _users;
+        private readonly IDoctorRepository _doctorRepo;
+        private readonly IPatientRepository _patientRepo;
 
-        public LoginView(PatientView patientView, IUserRepository users, DoctorsView? doctorsView = null)
+        private string? _currentUser;
+        private UserRole _currentRole;
+        private int? _currentDoctorId;
+        private int? _currentPatientId;
+
+        public LoginView(
+            PatientView patientView,
+            IUserRepository users,
+            DoctorsView doctorsView,
+            AppointmentView apptView,
+            IDoctorRepository doctorRepo,
+            IPatientRepository patientRepo)
         {
             _patientView = patientView;
-            _doctorsView = doctorsView;
             _users = users;
+            _doctorsView = doctorsView;
+            _apptView = apptView;
+            _doctorRepo = doctorRepo;
+            _patientRepo = patientRepo;
         }
 
-        // Returns true to keep app running, false to exit program
         public bool Run()
         {
             while (true)
             {
                 if (_currentUser == null)
                 {
-                    bool stayInApp = ShowLoginPage();
-                    if (!stayInApp) return false; // user chose Exit
+                    if (!ShowLoginPage()) return false;
                 }
                 else
                 {
-                    var homeView = new HomeView(_patientView, _doctorsView, _currentUser!);
-                    bool loggedOut = homeView.Run();
-                    if (loggedOut) _currentUser = null;   // back to login menu
-                    else return false;                    // quit app
+                    var home = new HomeView(_patientView, _doctorsView, _apptView, _currentUser!, _currentRole, _currentDoctorId, _currentPatientId);
+                    var loggedOut = home.Run();
+                    if (loggedOut) { _currentUser = null; _currentDoctorId = null; _currentPatientId = null; }
+                    else return false;
                 }
             }
         }
 
-        // Shows login menu. Returns true to continue app, false to quit.
         private bool ShowLoginPage()
         {
             Console.Clear();
@@ -47,73 +61,107 @@ namespace HospitalManagementApplication.Views
             Console.WriteLine("2. Login");
             Console.WriteLine("Q. Exit");
             Console.Write("\nSelect: ");
-
             var key = Console.ReadKey(true).Key;
 
             switch (key)
-    {
-        case ConsoleKey.D1:
-        case ConsoleKey.NumPad1:
-            Register();
-            return true;                  
-
-        case ConsoleKey.D2:
-        case ConsoleKey.NumPad2:
-            return Login();               
-
-        case ConsoleKey.Q:
-            return false;                 
-
-        default:
-            return true;                  
-    }
+            {
+                case ConsoleKey.D1: Register(); return true;
+                case ConsoleKey.D2: return Login();
+                case ConsoleKey.Q:  return false;
+                default:            return true;
+            }
         }
 
         private void Register()
         {
             Console.Clear();
             HeaderHelper.DrawHeader("User Registration");
-            Console.Write("Enter Your Username: ");
-            string username = Console.ReadLine() ?? "";
-            Console.Write("Enter Your Password: ");
-            string password = ReadPassword();
+            Console.Write("Username: ");
+            var uname = Console.ReadLine() ?? "";
+            Console.Write("Password: ");
+            var pwd = ReadPassword();
+
+            Console.WriteLine("\nRole: 1) Admin  2) Doctor  3) Patient");
+            Console.Write("Select role: ");
+            var roleKey = Console.ReadKey(true).Key;
+            var role = roleKey switch
+            {
+                ConsoleKey.D1 => UserRole.Admin,
+                ConsoleKey.D2 => UserRole.Doctor,
+                _             => UserRole.Patient
+            };
+
+            int? doctorId = null;
+            int? patientId = null;
 
             try
             {
-                // sync wrapper since your views are sync
-                _users.RegisterAsync(username, password).GetAwaiter().GetResult();
-                Console.WriteLine("User registered successfully! ✅");
+                if (role == UserRole.Doctor)
+                {
+                    Console.Write("\nDoctor Name: ");
+                    var dn = Console.ReadLine() ?? "";
+                    Console.Write("Speciality: ");
+                    var sp = Console.ReadLine() ?? "";
+                    var d = _doctorRepo.AddAsync(new Doctor { Name = dn, Speciality = sp })
+                                       .GetAwaiter().GetResult();
+                    doctorId = d.Id;
+                }
+                else if (role == UserRole.Patient)
+                {
+                    Console.Write("\nFull Name: ");
+                    var pn = Console.ReadLine() ?? "";
+                    Console.Write("Age: ");
+                    int.TryParse(Console.ReadLine(), out var age);
+                    Console.Write("Address: ");
+                    var addr = Console.ReadLine() ?? "";
+                    Console.Write("Phone: ");
+                    var ph = Console.ReadLine() ?? "";
+                    Console.Write("Email: ");
+                    var em = Console.ReadLine() ?? "";
+
+                    var p = _patientRepo.AddPatient(new Models.Patient
+                    {
+                        Name = pn, Age = age, Address = addr, phone = ph, email = em
+                    }).GetAwaiter().GetResult();
+                    patientId = p.Id;
+                }
+
+                _users.RegisterAsync(uname, pwd, role, doctorId, patientId).GetAwaiter().GetResult();
+                Console.WriteLine("\nRegistered ✅");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Registration failed: {ex.Message}");
+                Console.WriteLine($"\nRegistration failed: {ex.Message}");
             }
             Pause();
         }
 
-        // Returns true if app should continue (login ok or just return to menu),
-        // false only if you want to exit entire app from here.
         private bool Login()
         {
             Console.Clear();
             HeaderHelper.DrawHeader("User Login");
-            Console.Write("Enter Your Username: ");
-            string username = Console.ReadLine() ?? "";
-            Console.Write("Enter Your Password: ");
-            string password = ReadPassword();
+            Console.Write("Username: ");
+            var uname = Console.ReadLine() ?? "";
+            Console.Write("Password: ");
+            var pwd = ReadPassword();
 
-            var ok = _users.VerifyAsync(username, password).GetAwaiter().GetResult();
-            if (ok)
+            var ok = _users.VerifyAsync(uname, pwd).GetAwaiter().GetResult();
+            if (!ok)
             {
-                _currentUser = username;
-                Console.WriteLine("Login successful! ✅");
+                Console.WriteLine("Invalid credentials ❌");
                 Pause();
-                return true; // go to Home
+                return true;
             }
 
-            Console.WriteLine("Invalid username or password ❌");
+            var user = _users.GetByUsernameAsync(uname).GetAwaiter().GetResult()!;
+            _currentUser = user.Username;
+            _currentRole = user.Role;
+            _currentDoctorId = user.DoctorId;
+            _currentPatientId = user.PatientId;
+
+            Console.WriteLine($"Login successful ✅  (Role: {_currentRole})");
             Pause();
-            return true; // stay in login menu
+            return true;
         }
 
         private static string ReadPassword()
@@ -123,15 +171,9 @@ namespace HospitalManagementApplication.Views
             while ((key = Console.ReadKey(true)).Key != ConsoleKey.Enter)
             {
                 if (key.Key == ConsoleKey.Backspace && pass.Length > 0)
-                {
-                    pass = pass[..^1];
-                    Console.Write("\b \b");
-                }
+                { pass = pass[..^1]; Console.Write("\b \b"); }
                 else if (!char.IsControl(key.KeyChar))
-                {
-                    pass += key.KeyChar;
-                    Console.Write("*");
-                }
+                { pass += key.KeyChar; Console.Write("*"); }
             }
             Console.WriteLine();
             return pass;

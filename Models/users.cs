@@ -12,7 +12,10 @@ namespace HospitalManagementApplication.Models
         [Required] 
         public string PasswordHash { get; set; } = "";
 
-        [MaxLength(32)]
-        public string Role { get; set; } = "User";
+        public UserRole Role { get; set; } = UserRole.Patient;
+
+        
+        public int? DoctorId { get; set; }
+        public int? PatientId { get; set; }
     }
 }

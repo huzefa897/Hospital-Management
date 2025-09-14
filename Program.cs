@@ -1,42 +1,44 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using HospitalManagementApplication.Data;
 using HospitalManagementApplication.Interfaces;
+using HospitalManagementApplication.Models;
 using HospitalManagementApplication.Repositories;
 using HospitalManagementApplication.Controllers;
 using HospitalManagementApplication.Views;
 
-namespace HospitalManagementApplication
+class Program
 {
-    class Program
+    static void Main(string[] args)
     {
-        static void Main(string[] args)
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseSqlite("Data Source=hospital.db").Options;
+        using var db = new AppDbContext(options);
+        db.Database.Migrate();
+
+        var userRepo    = new UserRepository(db);
+        var doctorRepo  = new DoctorRepository(db);
+        var patientRepo = new PatientRepository(db);
+        var apptRepo    = new AppointmentRepository(db);
+
+        // Seed basics
+        if (!db.Users.Any())
         {
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseSqlite("Data Source=hospital.db")
-                .Options;
+            var d = doctorRepo.AddAsync(new Doctor { Name = "Dr. Nova", Speciality = "General" }).GetAwaiter().GetResult();
+            userRepo.RegisterAsync("admin", "admin123", UserRole.Admin).GetAwaiter().GetResult();
+            userRepo.RegisterAsync("drnova", "password", UserRole.Doctor, doctorId: d.Id).GetAwaiter().GetResult();
+        }
 
-            using var db = new AppDbContext(options);
+        var patientController = new PatientController(patientRepo);
+        var patientView = new PatientView(patientController);
+        var doctorsView = new DoctorsView(doctorRepo);
+        var apptView    = new AppointmentView(apptRepo, doctorRepo, patientRepo);
 
-            // EITHER use migrations:
-            db.Database.Migrate();
-            // OR, for a quick start without migrations, use:
-            // db.Database.EnsureCreated();  // (don’t mix with Migrate later)
+        var loginView = new LoginView(patientView, userRepo, doctorsView, apptView, doctorRepo, patientRepo);
 
-            IPatientRepository repo = new PatientRepository(db);
-            var controller = new PatientController(repo);
-            var patientView = new PatientView(controller);
-            var userRepo = new UserRepository(db);
-            var loginView = new LoginView(patientView, userRepo, null);
-
-            while (true)
-            {
-                bool user = loginView.Run();
-                if (!user) break;
-
-                var homeView = new HomeView(patientView, null, "user");
-                bool loggedOut = homeView.Run();
-                if (!loggedOut) break;
-            }
+        while (true)
+        {
+            if (!loginView.Run()) break;
         }
     }
 }

@@ -12,5 +12,7 @@ namespace HospitalManagementApplication.Models
         public string email {get;set;}
         // public string Disease { get; set; } = "";
         public int? primaryDoctorId { get; set; }
+        public int? UserId { get; set; }
     }
+    
 }

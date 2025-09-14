@@ -1,80 +1,91 @@
 using System;
+using System.Linq;
+using System.Threading.Tasks;
+using HospitalManagementApplication.Headers;
+using HospitalManagementApplication.Interfaces;
 using HospitalManagementApplication.Models;
-using HospitalManagementApplication.ViewModels;
 
 namespace HospitalManagementApplication.Views
 {
     public class DoctorsView
     {
+        private readonly IDoctorRepository _doctors;
 
-        public void Show()
+        public DoctorsView(IDoctorRepository doctors) => _doctors = doctors;
+
+        public bool Run()
         {
-            Console.WriteLine("Doctor view placeholder.");
+            while (true)
+            {
+                Console.Clear();
+                HeaderHelper.DrawHeader("Manage Doctors");
+                Console.WriteLine("1) Add Doctor");
+                Console.WriteLine("2) List Doctors");
+                Console.WriteLine("3) Delete Doctor");
+                Console.WriteLine("Q) Back");
+                Console.Write("\nSelect: ");
+                var key = Console.ReadKey(true).Key;
+
+                switch (key)
+                {
+                    case ConsoleKey.D1: Add(); break;
+                    case ConsoleKey.D2: List(); break;
+                    case ConsoleKey.D3: Delete(); break;
+                    case ConsoleKey.Q: return true;
+                }
+            }
         }
-//         private readonly DoctorViewModel _viewModel;
 
-//         public DoctorsView(DoctorViewModel viewModel)
-//         {
-//             _viewModel = viewModel;
-//         }
-//     public void DoctorView(){
-//         while(true){
-// Console.WriteLine("Hospital Management Application");
-// Console.WriteLine("Choose the Following Options");
-// Console.WriteLine("1.Manage Patients");
-// Console.WriteLine("2.List the Doctors");
-// Console.WriteLine("3.Exit");
-// Console.Write("Enter your choice: ");
-// var choice = Console.ReadLine();
-// switch (choice)
-// {
-//     case "1":
-//         ShowMenu();
-//         break;
-//     case "2":
-//         ListOfDoctors();
-//         break;
-//     case "3":
-//         break;
-//     default:
-//         Console.WriteLine("Invalid choice.");
-//         break;
-// }            
-//         }
-//     }
-//         public void ShowMenu()
-//         {
-//             while (true)
-//             {
-//                 Console.WriteLine("\n--- Doctor View ---");
-//                 Console.WriteLine("1. List of Doctors");
-//                 Console.WriteLine("2. Exit");
+        private void Add()
+        {
+            Console.Clear();
+            HeaderHelper.DrawHeader("Add Doctor");
+            Console.Write("Name: ");
+            var name = Console.ReadLine() ?? "";
+            Console.Write("Speciality: ");
+            var spec = Console.ReadLine() ?? "";
 
-//                 Console.Write("Enter your choice: ");
-//                 var choice = Console.ReadLine();
+            var doc = new Doctor { Name = name, Speciality = spec };
+            _doctors.AddAsync(doc).GetAwaiter().GetResult();
+            Console.WriteLine("Doctor saved ✅");
+            Pause();
+        }
 
-//                 switch (choice)
-//                 {
-//                     case "1":
-//                         ListOfDoctors();
-//                         break;
-//                     case "2":
-//                         return;
-//                     default:
-//                         Console.WriteLine("Invalid choice.");
-//                         break;
-//                 }
-//             }
-//         }
-//         public void ListOfDoctors(){    
-//             // var doctors = _viewModel.GetAllDoctors();
-//             // foreach (var d in doctors)
-//             // {
-//             //     Console.WriteLine("|---------------------------------------------------|");
-//             //     Console.WriteLine($"|ID: {d.Id}| Name: {d.Name}| Age: {d.Age}| Disease: {d.Disease}|");
-//             //     Console.WriteLine("|---------------------------------------------------|");
-//             // }
-//         }
+      private void List()
+{
+    Console.Clear();
+    HeaderHelper.DrawHeader("Doctors");
+    var list = _doctors.GetAllAsync().GetAwaiter().GetResult().OrderBy(d => d.Name).ToList();
+    if (!list.Any()) { Console.WriteLine("(none)"); Pause(); return; }
 
+    // Id  Name  Speciality
+    Console.WriteLine("Id   Name                   Speciality");
+    Console.WriteLine("──── ────────────────────── ──────────────────────");
+    foreach (var d in list)
+    {
+        string name = (d.Name ?? "").PadRight(21);
+        string spec = (d.Speciality ?? "").PadRight(21);
+        Console.WriteLine($"{d.Id, -4} {name} {spec}");
+    }
+    Pause();
+}
+
+        private void Delete()
+        {
+            Console.Clear();
+            HeaderHelper.DrawHeader("Delete Doctor");
+            Console.Write("Doctor Id: ");
+            if (!int.TryParse(Console.ReadLine(), out var id)) { Console.WriteLine("Invalid Id"); Pause(); return; }
+
+            var ok = _doctors.DeleteAsync(id).GetAwaiter().GetResult();
+            Console.WriteLine(ok ? "Deleted ✅" : "Not found ❌");
+            Pause();
+        }
+
+        private static void Pause()
+        {
+            Console.Write("\nPress any key to continue...");
+            Console.ReadKey(true);
+        }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using HospitalManagementApplication.Data;
@@ -12,9 +13,11 @@ namespace HospitalManagementApplication.Repositories
         private readonly AppDbContext _db;
         public UserRepository(AppDbContext db) => _db = db;
 
-        public async Task<User> RegisterAsync(string username, string password, string role = "User")
+        public async Task<User> RegisterAsync(string username, string password, UserRole role = UserRole.Patient, int? doctorId = null, int? patientId = null)
         {
-            // prevent duplicates
+            if (string.IsNullOrWhiteSpace(username)) throw new ArgumentException("Username required.", nameof(username));
+            if (string.IsNullOrEmpty(password)) throw new ArgumentException("Password required.", nameof(password));
+
             if (await _db.Users.AnyAsync(u => u.Username == username))
                 throw new InvalidOperationException("Username already exists.");
 
@@ -22,8 +25,11 @@ namespace HospitalManagementApplication.Repositories
             {
                 Username = username,
                 PasswordHash = PasswordHasher.Hash(password),
-                Role = role
+                Role = role,
+                DoctorId = doctorId,
+                PatientId = patientId
             };
+
             _db.Users.Add(user);
             await _db.SaveChangesAsync();
             return user;
