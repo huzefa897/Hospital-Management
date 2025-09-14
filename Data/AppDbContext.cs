@@ -8,7 +8,7 @@ namespace HospitalManagementApplication.Data
     {
         public DbSet<Patient> Patients => Set<Patient>();
         public DbSet<Doctor>  Doctors  => Set<Doctor>();   // <— add this
-
+        public DbSet<User> Users => Set<User>();
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder b)
@@ -20,6 +20,10 @@ namespace HospitalManagementApplication.Data
             b.Entity<Doctor>().HasKey(d => d.Id);
             b.Entity<Doctor>().Property(d => d.Name).HasMaxLength(100).IsRequired();
             b.Entity<Doctor>().Property(d => d.Speciality).HasMaxLength(100);
+
+           b.Entity<User>().HasIndex(u => u.Username).IsUnique();
+
+    b.Entity<User>().HasIndex(u => u.Username).IsUnique();
         }
     }
 }

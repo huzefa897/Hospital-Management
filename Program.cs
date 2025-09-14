@@ -25,8 +25,8 @@ namespace HospitalManagementApplication
             IPatientRepository repo = new PatientRepository(db);
             var controller = new PatientController(repo);
             var patientView = new PatientView(controller);
-
-            var loginView = new LoginView(patientView, null);
+            var userRepo = new UserRepository(db);
+            var loginView = new LoginView(patientView, userRepo, null);
 
             while (true)
             {
