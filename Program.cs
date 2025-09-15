@@ -6,13 +6,14 @@ using HospitalManagementApplication.Models;
 using HospitalManagementApplication.Repositories;
 using HospitalManagementApplication.Controllers;
 using HospitalManagementApplication.Views;
-
+using HospitalManagementApplication.Config; 
 class Program
 {
     static void Main(string[] args)
     {
+        var dbPath = Paths.GetDatabasePath();
         var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseSqlite("Data Source=hospital.db").Options;
+            .UseSqlite($"Data Source={dbPath}").Options;
         using var db = new AppDbContext(options);
         db.Database.Migrate();
 

@@ -47,7 +47,7 @@ namespace HospitalManagementApplication.Views
 
             var doc = new Doctor { Name = name, Speciality = spec };
             _doctors.AddAsync(doc).GetAwaiter().GetResult();
-            Console.WriteLine("Doctor saved ✅");
+            Console.WriteLine("Doctor saved ");
             Pause();
         }
 
@@ -78,7 +78,7 @@ namespace HospitalManagementApplication.Views
             if (!int.TryParse(Console.ReadLine(), out var id)) { Console.WriteLine("Invalid Id"); Pause(); return; }
 
             var ok = _doctors.DeleteAsync(id).GetAwaiter().GetResult();
-            Console.WriteLine(ok ? "Deleted ✅" : "Not found ❌");
+            Console.WriteLine(ok ? "Deleted " : "Not found ");
             Pause();
         }
 

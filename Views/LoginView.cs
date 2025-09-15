@@ -127,7 +127,7 @@ namespace HospitalManagementApplication.Views
                 }
 
                 _users.RegisterAsync(uname, pwd, role, doctorId, patientId).GetAwaiter().GetResult();
-                Console.WriteLine("\nRegistered ✅");
+                Console.WriteLine("\nRegistered ");
             }
             catch (Exception ex)
             {
@@ -148,7 +148,7 @@ namespace HospitalManagementApplication.Views
             var ok = _users.VerifyAsync(uname, pwd).GetAwaiter().GetResult();
             if (!ok)
             {
-                Console.WriteLine("Invalid credentials ❌");
+                Console.WriteLine("Invalid credentials ");
                 Pause();
                 return true;
             }
@@ -159,7 +159,7 @@ namespace HospitalManagementApplication.Views
             _currentDoctorId = user.DoctorId;
             _currentPatientId = user.PatientId;
 
-            Console.WriteLine($"Login successful ✅  (Role: {_currentRole})");
+            Console.WriteLine($"Login successful  (Role: {_currentRole})");
             Pause();
             return true;
         }
